@@ -1,0 +1,239 @@
+#!/usr/bin/perl
+# Copyright 2011, Olof Johansson <olof@ethup.se>
+#
+# Copying and distribution of this file, with or without 
+# modification, are permitted in any medium without royalty 
+# provided the copyright notice are preserved. This file is 
+# offered as-is, without any warranty.
+
+our $APP = 'apass';
+our $VERSION = 0.1; 
+
+use warnings;
+use strict;
+use feature qw/say/;
+
+use App::apass::GenPass;
+use App::apass::Database;
+use App::apass::Password;
+use App::apass::Crypt;
+
+use Clipboard;
+use Getopt::Long;
+use Pod::Usage;
+use Sys::Syslog;
+
+my $db;
+my $crypt;
+my $user = getpwuid($<);
+
+my %opts = (
+	file => "$ENV{HOME}/.apass",
+	length => 16,
+	debug => 1,
+);
+
+GetOptions(
+	output => \$opts{output},
+	'length=i' => \$opts{length},
+	nospec => \$opts{nospec},
+	debug => \$opts{debug},
+	'file=s' => \$opts{file},
+	help => \&help,
+	version => \&version,
+);
+
+my $cmd = shift or help();
+
+my %cmds = (
+	init => sub { init(@_) },
+	get => sub { get(@_) },
+	add => sub { add(@_) },
+	set => sub { set(@_) },
+	rm => sub { rm(@_) },
+	help => sub { help(@_) },
+	version => sub { version(@_) },
+	#search => sub { search_db(@_) },
+);
+
+help() unless $cmd;
+help("Unknown command: $cmd") unless exists $cmds{$cmd};
+$cmds{$cmd}->(@ARGV);
+
+exit 0;
+
+sub get {
+	my $tag = shift;
+	load();
+
+	if(exists $db->{$tag}) {
+		if($opts{output}) {
+			say $db->{$tag};		
+		} else {
+			Clipboard->copy($db->{$tag}) 
+		}
+	} else {
+		say "Error: No such key";
+		exit 1;
+	}
+}
+
+sub add {
+	my $tag = shift;
+	load();
+
+	if(exists $db->{$tag}) {
+		say "Error: Key exists";
+		exit 1;
+	}
+
+	my $pass = genpass(%opts);
+
+	if($pass) {
+		$db->{$tag} = $pass;
+		db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
+	} else {
+		say "Error: generating new password failed";
+	}
+}
+
+sub rm {
+	my $tag = shift;
+	load();
+
+	if(!exists $db->{$tag}) {
+		say "Error: No such key exists.";
+		exit 1;
+	}
+
+	delete $db->{$tag};
+	db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
+}
+
+sub set {
+	my $tag = shift;
+	load();
+
+	my $pass = pass_create();
+	$db->{$tag} = $pass;
+	db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
+}
+
+sub init {
+	die("$opts{file} already exist") if -e $opts{file};
+	my $pass = pass_create();
+	$crypt = mkcrypt(key=>$pass);
+	db_init(file=>$opts{file}, crypt=>$crypt);
+}
+
+sub help {
+	pod2usage(
+		-verbose => 99,
+		-sections => [qw/SYNOPSIS/],
+		-message => shift,
+	);
+	
+	exit 0;
+}
+
+sub version {
+	say "$APP v$VERSION";
+	exit 0;
+}
+
+sub load {
+	my $key;
+	for(my $i = 0; $i<3; ++$i) {
+		my $try = pass_read();
+		$crypt = mkcrypt(key => $try);
+
+		my $tmp_db = db_load(
+			file => $opts{file},
+			crypt => $crypt,
+		);
+
+		if(ref $tmp_db eq 'HASH') {
+			$db = $tmp_db;
+			return;
+		}
+
+		# Sound the alarms
+		openlog 'apass', 'pid', "LOG_AUTHPRIV";
+		syslog('ERR', "Authentication failure for $user");
+		closelog;
+
+		sleep 1;
+	}
+	
+	exit 1;
+}
+
+sub debug {
+	my $fmt = shift;
+	printf("DEBUG: $fmt\n", @_) if $opts{debug};
+}
+
+__END__
+=head1 NAME 
+
+apass - a password generator and manager
+
+=head1 SYNOPSIS
+
+ apass [options] <cmd> [cmd arguments]
+
+ Options:
+  --output        print password to stdout
+  --length        specify length for new passwords
+  --nospec        don't use special characters in passwords
+  --file          use a database, other than ~/.apass
+
+  --debug         print debug output to stdout
+  --help          show usage information
+  --version       show version information
+
+ Commands:
+  get <tag>       get password for tag
+  add <tag>       generate password for tag
+  set <tag>       manually set a password for tag (new or existing)
+  rm <tag>        remove tag
+  init            initialize database
+
+=head1 DESCRIPTION
+
+apass is a password manager and generator, storing your passwords
+in an encrypted database. When you want to access a specific site or
+service, you just run apass, specifying which tag you want to 
+access, and enter your master password.
+
+=head1 COMMANDS
+
+=over
+
+=item B<get>
+
+=item B<add>
+
+=item B<set>
+
+=item B<rm>
+
+=item B<init>
+
+=back
+
+=head1 OPTIONS
+
+=over
+
+=item B<--output> B<-p>
+
+Print password to stdout when accessing with B<get>.
+
+=item B<--help> B<-h>
+
+Print short help text (the SYNOPSIS section of this document) to stdout.
+
+=back
+
+etc.
