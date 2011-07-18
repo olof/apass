@@ -4,6 +4,7 @@ use warnings;
 require Exporter;
 our @ISA = qw/Exporter/;
 our @EXPORT = qw/mkcrypt/;
+our $VERSION = 0.1;
 
 use Crypt::CBC;
 

@@ -10,6 +10,7 @@ use String::MkPasswd qw/mkpasswd/;
 require Exporter;
 our @ISA = qw/Exporter/;
 our @EXPORT = qw/genpass/;
+our $VERSION = 0.1;
 
 sub genpass {
 	my $opts = { 
