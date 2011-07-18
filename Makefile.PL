@@ -6,5 +6,11 @@ WriteMakefile(
 	VERSION_FROM => 'bin/apass',
 	ABSTRACT_FROM => 'bin/apass',
 	EXE_FILES => ['bin/apass'],
+
+	PREREQ_PM => {
+		'Crypt::CBC' => 0,
+		'String::MkPasswd' => 0,
+		'Term::ReadPassword' => 0,
+	},
 );
 
