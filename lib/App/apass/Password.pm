@@ -4,6 +4,7 @@ use warnings;
 require Exporter;
 our @ISA = qw/Exporter/;
 our @EXPORT = qw/pass_read pass_create/;
+our $VERSION = 0.1;
 
 use Term::ReadPassword;
 
