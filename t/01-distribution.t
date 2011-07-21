@@ -8,6 +8,6 @@ eval { require Test::Distribution };
 if($@) {
 	plan skip_all => 'Test::Distribution is not installed';
 } else {
-	import Test::Distribution;
+	import Test::Distribution not => 'podcover';
 }
 
