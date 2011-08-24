@@ -19,12 +19,8 @@ sub genpass {
 	};
 	my $pass;
 
-	if(exists $opts{nospec}) {
-		$pass = mkpasswd(-length=>$opts->{length});
-		$pass =~ s/\W//g;
-	} else {
-		$pass = mkpasswd(-length=>$opts->{length});
-	}
+	$pass = mkpasswd(-length=>$opts->{length});
+	$pass =~ s/\W//g if exists $opts->{nospec};
 
 	return $pass;
 }
