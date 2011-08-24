@@ -50,6 +50,7 @@ my $cmd = shift or help();
 my %cmds = (
 	init => sub { init(@_) },
 	get => sub { get(@_) },
+	list => sub { list(@_) },
 	add => sub { add(@_) },
 	set => sub { set(@_) },
 	rm => sub { rm(@_) },
@@ -77,6 +78,17 @@ sub get {
 	} else {
 		say "Error: No such key";
 		exit 1;
+	}
+}
+
+sub list {
+	my $pattern = shift;
+	load();
+
+	if(defined $pattern) {
+		say for grep /$pattern/, keys %{$db};
+	} else {
+		say for keys %{$db};
 	}
 }
 
