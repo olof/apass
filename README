@@ -1,0 +1,18 @@
+apass - a password generator and manager
+
+apass is a password manager and generator, storing your passwords in an
+encrypted database. When you want to access a specific site or service,
+you just run apass, specifying which tag you want to access, and enter
+your master password.
+
+
+This application use the following license. The license if file
+scoped, so this is a convenience copy.
+
+  Copyright 2011, Olof Johansson <olof@ethup.se>
+
+  Copying and distribution of this file, with or without 
+  modification, are permitted in any medium without royalty 
+  provided the copyright notice are preserved. This file is 
+  offered as-is, without any warranty.
+
