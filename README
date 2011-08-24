@@ -16,3 +16,28 @@ scoped, so this is a convenience copy.
   provided the copyright notice are preserved. This file is 
   offered as-is, without any warranty.
 
+
+Hacking
+-------
+This is an attempt to formalize how to contribute to this application.
+Follow the coding style used in the code, it shouldn't be too hard.
+Tabs for indentation, space for alignment. Curly brackets on the same
+line as... you know.
+
+I appreciate if you use git when supplying patches, but, of course,
+that's not a requirement. In any case, a commit/patch should solve one
+thing and one thing only. When working with git, create a seperate
+branch everytime you want to change something. The name of the branch
+should be:
+
+ topic/<short description, a title of what you are doing>
+
+E.g.
+
+ topic/fix_failing_db_init_test
+
+If you are trying to solve an open ticket, it's a good idea to include
+the ticket number in the branch name. E.g.
+
+ topic/fix_failing_db_init_test-1234
+
