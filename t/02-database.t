@@ -7,7 +7,7 @@ use Crypt::CBC;
 my $crypt = mkcrypt( key => 'password' );
 
 db_init(file=>'t/data/t1.db', crypt=>$crypt);
-ok(-e 't/data/t1.db.dyn', 'db_init creates a new file');
+ok(-e 't/data/t1.db', 'db_init creates a new file');
 
 $dbref = db_load(file=>'t/data/t1.db', crypt=>$crypt);
 is(ref $dbref, 'HASH', 'db_load returns hashref');
