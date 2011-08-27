@@ -43,6 +43,8 @@ GetOptions(\%opts,
 	'file=s',
 	'help',
 	'version',
+
+	'dbpass=s', # no.. don't. this is for tests only.
 );
 
 my $cmd = shift or help();
@@ -135,7 +137,7 @@ sub set {
 
 sub init {
 	die("$opts{file} already exist") if -e $opts{file};
-	my $pass = pass_create();
+	my $pass = $opts{dbpass} // pass_create();
 	$crypt = mkcrypt(key=>$pass);
 	db_init(file=>$opts{file}, crypt=>$crypt);
 }
@@ -157,8 +159,11 @@ sub version {
 
 sub load {
 	my $key;
-	for(my $i = 0; $i<3; ++$i) {
-		my $try = pass_read();
+	my $tries = $opts{dbpass} ? 1 : 3;
+	my $passwd = $opts{dbpass};
+
+	for(my $i = 0; $i < $tries; ++$i) {
+		my $try = $passwd // pass_read();
 		$crypt = mkcrypt(key => $try);
 
 		my $tmp_db = db_load(
