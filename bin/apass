@@ -39,6 +39,7 @@ GetOptions(\%opts,
 	'output',
 	'length=i',
 	'nospec',
+	'ttl=i',
 	'debug',
 	'file=s',
 	'help',
@@ -69,15 +70,16 @@ sub get {
 	my $tag = shift;
 	load();
 
-	if(exists $db->{$tag}) {
-		if($opts{output}) {
-			say $db->{$tag};		
-		} else {
-			Clipboard->copy($db->{$tag}) 
-		}
-	} else {
+	if(! exists $db->{$tag}) {
 		say "Error: No such key";
 		exit 1;
+	}
+
+	if($opts{output}) {
+		say $db->{$tag};
+	} else {
+		Clipboard->copy($db->{$tag});
+		ttl_clear($opts{ttl}) if $opts{ttl};
 	}
 }
 
@@ -180,6 +182,16 @@ sub load {
 	}
 	
 	exit 1;
+}
+
+sub ttl_clear {
+	my $ttl = shift;
+
+	print "INFO: Will sleep for ${ttl}s and then clear copy buffer\n";
+	print "INFO: You can safely abort this by pressing Ctrl+C\n";
+
+	sleep $ttl;
+	Clipboard->copy('');
 }
 
 sub debug {
