@@ -7,7 +7,7 @@
 # offered as-is, without any warranty.
 
 our $APP = 'apass';
-our $VERSION = 0.1; 
+our $VERSION = 0.1;
 
 use warnings;
 use strict;
@@ -31,7 +31,7 @@ my %opts = (
 	file => "$ENV{HOME}/.apass",
 	length => 16,
 	debug => 1,
-	help => \&help,
+	help => sub { help() },
 	version => \&version,
 );
 
