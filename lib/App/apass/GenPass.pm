@@ -15,12 +15,13 @@ our $VERSION = 0.1;
 sub genpass {
 	my $opts = { 
 		length => 16,
+		re => 'A-Za-z0-9'
 		@_ 
 	};
 	my $pass;
 
 	$pass = mkpasswd(-length=>$opts->{length});
-	$pass =~ s/\W//g if exists $opts->{nospec};
+	$pass =~ s/[$opts->{re}]//g if $opts->{nospec};
 
 	return $pass;
 }
