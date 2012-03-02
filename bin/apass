@@ -54,6 +54,7 @@ my %cmds = (
 	list => sub { list(@_) },
 	add => sub { add(@_) },
 	set => sub { set(@_) },
+	regen => sub { regen(@_) },
 	rm => sub { rm(@_) },
 	help => sub { help(@_) },
 	version => sub { version(@_) },
@@ -99,7 +100,7 @@ sub add {
 	load();
 
 	if(exists $db->{$tag}) {
-		say "Error: Key exists";
+		say "Error: Key '$tag' already exists";
 		exit 1;
 	}
 
@@ -118,7 +119,7 @@ sub rm {
 	load();
 
 	if(!exists $db->{$tag}) {
-		say "Error: No such key exists.";
+		say "Error: No tag '$tag' exists.";
 		exit 1;
 	}
 
@@ -131,6 +132,26 @@ sub set {
 	load();
 
 	my $pass = pass_create();
+
+	if($pass) {
+		say 'Error: Could not get a password';
+		exit 1;
+	}
+
+	$db->{$tag} = $pass;
+	db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
+}
+
+sub regen {
+	my $tag = shift;
+	load();
+
+	if(! exists $db->{$tag}) {
+		say "Error: Tag '$tag' doesn't exist.";
+		exit 1;
+	}
+
+	my $pass = genpass(%opts);
 	$db->{$tag} = $pass;
 	db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
 }
@@ -209,21 +230,22 @@ apass - a password generator and manager
  apass [options] <cmd> [cmd arguments]
 
  Options:
-  --output        print password to stdout
-  --length        specify length for new passwords
-  --nospec        don't use special characters in passwords
-  --file          use a database, other than ~/.apass
+  --output          print password to stdout
+  --length          specify length for new passwords
+  --nospec          don't use special characters in passwords
+  --file            use a database, other than ~/.apass
 
-  --debug         print debug output to stdout
-  --help          show usage information
-  --version       show version information
+  --debug           print debug output to stdout
+  --help            show usage information
+  --version         show version information
 
  Commands:
-  get <tag>       get password for tag
-  add <tag>       generate password for tag
-  set <tag>       manually set a password for tag (new or existing)
-  rm <tag>        remove tag
-  init            initialize database
+  get <tag>         get password for tag
+  add <tag>         generate password for tag
+  regen <tag>       generate a new password for tag
+  set <tag> <pass>  manually set password "pass" for tag (new or existing)
+  rm <tag>          remove tag
+  init              initialize database
 
 =head1 DESCRIPTION
 
@@ -241,6 +263,8 @@ access, and enter your master password.
 =item B<add>
 
 =item B<set>
+
+=item B<regen>
 
 =item B<rm>
 
