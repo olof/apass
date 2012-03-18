@@ -21,7 +21,7 @@ sub genpass {
 	my $pass;
 
 	$pass = mkpasswd(-length=>$opts->{length});
-	$pass =~ s/[$opts->{re}]//g if $opts->{nospec};
+	$pass =~ s/[^$opts->{re}]//g if $opts->{nospec};
 
 	return $pass;
 }
