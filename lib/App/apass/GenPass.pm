@@ -15,7 +15,7 @@ our $VERSION = 0.1;
 sub genpass {
 	my $opts = { 
 		length => 16,
-		re => 'A-Za-z0-9'
+		re => 'A-Za-z0-9',
 		@_ 
 	};
 	my $pass;
