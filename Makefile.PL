@@ -9,7 +9,7 @@ WriteMakefile(
 
 	PREREQ_PM => {
 		'Crypt::CBC' => 0,
-		'String::MkPasswd' => 0,
+		'Crypt::GeneratePassword' => 0,
 		'Term::ReadPassword' => 0,
 	},
 );
