@@ -6,7 +6,7 @@
 # offered as-is, without any warranty.
 
 package App::apass::GenPass;
-use String::MkPasswd qw/mkpasswd/;
+use Crypt::GeneratePassword qw/word chars/;
 require Exporter;
 our @ISA = qw/Exporter/;
 our @EXPORT = qw/genpass/;
@@ -15,15 +15,12 @@ our $VERSION = 0.1;
 sub genpass {
 	my $opts = { 
 		length => 16,
-		re => 'A-Za-z0-9',
 		@_ 
 	};
 	my $pass;
 
-	$pass = mkpasswd(-length=>$opts->{length});
-	$pass =~ s/[^$opts->{re}]//g if $opts->{nospec};
-
-	return $pass;
+	return word($opts->{length}, $opts->{length}) if $opts->{nospec};
+	return chars($opts->{length}, $opts->{length});
 }
 
 1;
