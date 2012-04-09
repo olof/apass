@@ -18,7 +18,6 @@ use App::apass::Database;
 use App::apass::Password;
 use App::apass::Crypt;
 
-use Clipboard;
 use Getopt::Long;
 use Pod::Usage;
 use Sys::Syslog;
@@ -76,12 +75,29 @@ sub get {
 		exit 1;
 	}
 
-	if($opts{output}) {
-		say $db->{$tag};
-	} else {
-		Clipboard->copy($db->{$tag});
-		ttl_clear($opts{ttl}) if $opts{ttl};
+	return give_pass($db->{$tag});
+}
+
+sub give_pass {
+	my $pass = shift;
+
+	say $pass, return 1 if $opts{output};
+	return set_selection($pass);
+}
+
+sub set_selection {
+	my $pass = shift;
+
+	eval { require Clipboard; };
+	if($@) {
+		say "Unable to load Clipboard (not running under X?).";
+		say "Try with '--output' next time to print the password ",
+		    "stdout";
+		exit 1;
 	}
+
+	Clipboard->copy($pass);
+	ttl_clear($opts{ttl}) if $opts{ttl};
 }
 
 sub list {
