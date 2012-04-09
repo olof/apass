@@ -68,6 +68,11 @@ exit 0;
 
 sub get {
 	my $tag = shift;
+	if(! $tag) {
+		say "Error: No tag given!";
+		exit 1;
+	}
+
 	load();
 
 	if(! exists $db->{$tag}) {
@@ -113,6 +118,11 @@ sub list {
 
 sub add {
 	my $tag = shift;
+	if(! $tag) {
+		say "Error: No tag given!";
+		exit 1;
+	}
+
 	load();
 
 	if(exists $db->{$tag}) {
@@ -132,6 +142,11 @@ sub add {
 
 sub rm {
 	my $tag = shift;
+	if(! $tag) {
+		say "Error: No tag given!";
+		exit 1;
+	}
+
 	load();
 
 	if(!exists $db->{$tag}) {
@@ -145,6 +160,11 @@ sub rm {
 
 sub set {
 	my $tag = shift;
+	if(! $tag) {
+		say "Error: No tag given!";
+		exit 1;
+	}
+
 	load();
 
 	my $pass = pass_create();
@@ -160,6 +180,11 @@ sub set {
 
 sub regen {
 	my $tag = shift;
+	if(! $tag) {
+		say "Error: No tag given!";
+		exit 1;
+	}
+
 	load();
 
 	if(! exists $db->{$tag}) {
