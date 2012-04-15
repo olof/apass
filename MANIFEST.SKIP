@@ -1,0 +1,8 @@
+^blib/
+^\.git/
+^t/data/
+^Makefile$
+^pm_to_blib$
+\.swp$
+\.bak$
+\.old$
