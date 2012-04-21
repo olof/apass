@@ -7,261 +7,45 @@
 # offered as-is, without any warranty.
 
 our $APP = 'apass';
-our $VERSION = 0.1;
+our $VERSION = 0.2;
 
 use warnings;
 use strict;
 use feature qw/say/;
 
-use App::apass::GenPass;
-use App::apass::Database;
-use App::apass::Password;
-use App::apass::Crypt;
+use Getopt::Long qw/:config require_order bundling/;
+use App::apass::Utils::Help qw/help error version/;
+use Module::Load;
 
-use Getopt::Long;
-use Pod::Usage;
-use Sys::Syslog;
+our $opts = {
+	file     => "$ENV{HOME}/.apass",
+	length   => 16,
+	cipher   => 'Rijndael',
+	debug    => 0,
+	help     => sub { help(\*DATA) },
+	version  => sub { version() },,
+};
 
-my $db;
-my $crypt;
-my $user = getpwuid($<);
-
-my %opts = (
-	file => "$ENV{HOME}/.apass",
-	length => 16,
-	debug => 1,
-	help => sub { help() },
-	version => \&version,
-);
-
-GetOptions(\%opts,
-	'output',
-	'length=i',
-	'nospec',
-	'ttl=i',
+GetOptions($opts,
 	'debug',
 	'file=s',
+	'cipher=s',
 	'help',
 	'version',
 );
 
-my $cmd = shift or help();
+my $cmd = shift or help(\*DATA);
+exit run($cmd, $opts, @ARGV);
 
-my %cmds = (
-	init => sub { init(@_) },
-	get => sub { get(@_) },
-	list => sub { list(@_) },
-	add => sub { add(@_) },
-	set => sub { set(@_) },
-	regen => sub { regen(@_) },
-	rm => sub { rm(@_) },
-	help => sub { help(@_) },
-	version => sub { version(@_) },
-	#search => sub { search_db(@_) },
-);
+sub run {
+	my $cmd = shift;
+	my $opts = shift;
 
-help() unless $cmd;
-help("Unknown command: $cmd") unless exists $cmds{$cmd};
-$cmds{$cmd}->(@ARGV);
-
-exit 0;
-
-sub get {
-	my $tag = shift;
-	if(! $tag) {
-		say "Error: No tag given!";
-		exit 1;
-	}
-
-	load();
-
-	if(! exists $db->{$tag}) {
-		say "Error: No such key";
-		exit 1;
-	}
-
-	return give_pass($db->{$tag});
+	load "App::apass::$cmd", 'invoke';
+	return invoke($opts, @_);
 }
 
-sub give_pass {
-	my $pass = shift;
-
-	say $pass, return 1 if $opts{output};
-	return set_selection($pass);
-}
-
-sub set_selection {
-	my $pass = shift;
-
-	eval { require Clipboard; };
-	if($@) {
-		say "Unable to load Clipboard (not running under X?).";
-		say "Try with '--output' next time to print the password ",
-		    "stdout";
-		exit 1;
-	}
-
-	Clipboard->copy($pass);
-	ttl_clear($opts{ttl}) if $opts{ttl};
-}
-
-sub list {
-	my $pattern = shift;
-	load();
-
-	if(defined $pattern) {
-		say for grep /$pattern/, keys %{$db};
-	} else {
-		say for keys %{$db};
-	}
-}
-
-sub add {
-	my $tag = shift;
-	if(! $tag) {
-		say "Error: No tag given!";
-		exit 1;
-	}
-
-	load();
-
-	if(exists $db->{$tag}) {
-		say "Error: Key '$tag' already exists";
-		exit 1;
-	}
-
-	my $pass = genpass(%opts);
-
-	if($pass) {
-		$db->{$tag} = $pass;
-		db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
-	} else {
-		say "Error: generating new password failed";
-	}
-}
-
-sub rm {
-	my $tag = shift;
-	if(! $tag) {
-		say "Error: No tag given!";
-		exit 1;
-	}
-
-	load();
-
-	if(!exists $db->{$tag}) {
-		say "Error: No tag '$tag' exists.";
-		exit 1;
-	}
-
-	delete $db->{$tag};
-	db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
-}
-
-sub set {
-	my $tag = shift;
-	if(! $tag) {
-		say "Error: No tag given!";
-		exit 1;
-	}
-
-	load();
-
-	my $pass = pass_create();
-
-	if($pass) {
-		say 'Error: Could not get a password';
-		exit 1;
-	}
-
-	$db->{$tag} = $pass;
-	db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
-}
-
-sub regen {
-	my $tag = shift;
-	if(! $tag) {
-		say "Error: No tag given!";
-		exit 1;
-	}
-
-	load();
-
-	if(! exists $db->{$tag}) {
-		say "Error: Tag '$tag' doesn't exist.";
-		exit 1;
-	}
-
-	my $pass = genpass(%opts);
-	$db->{$tag} = $pass;
-	db_dump(crypt => $crypt, db=>$db, file=>$opts{file});
-}
-
-sub init {
-	die("$opts{file} already exist") if -e $opts{file};
-	my $pass = pass_create();
-	$crypt = mkcrypt(key=>$pass);
-	db_init(file=>$opts{file}, crypt=>$crypt);
-}
-
-sub help {
-	pod2usage(
-		-verbose => 99,
-		-sections => [qw/SYNOPSIS/],
-		-message => shift,
-	);
-	
-	exit 0;
-}
-
-sub version {
-	say "$APP v$VERSION";
-	exit 0;
-}
-
-sub load {
-	my $key;
-	for(my $i = 0; $i<3; ++$i) {
-		my $try = pass_read();
-		$crypt = mkcrypt(key => $try);
-
-		my $tmp_db = db_load(
-			file => $opts{file},
-			crypt => $crypt,
-		);
-
-		if(ref $tmp_db eq 'HASH') {
-			$db = $tmp_db;
-			return;
-		}
-
-		# Sound the alarms
-		openlog 'apass', 'pid', "LOG_AUTHPRIV";
-		syslog('ERR', "Authentication failure for $user");
-		closelog;
-
-		sleep 1;
-	}
-	
-	exit 1;
-}
-
-sub ttl_clear {
-	my $ttl = shift;
-
-	print "INFO: Will sleep for ${ttl}s and then clear copy buffer\n";
-	print "INFO: You can safely abort this by pressing Ctrl+C\n";
-
-	sleep $ttl;
-	Clipboard->copy('');
-}
-
-sub debug {
-	my $fmt = shift;
-	printf("DEBUG: $fmt\n", @_) if $opts{debug};
-}
-
-__END__
+__DATA__
 =head1 NAME 
 
 apass - a password generator and manager

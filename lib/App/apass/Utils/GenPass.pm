@@ -5,7 +5,7 @@
 # provided the copyright notice are preserved. This file is 
 # offered as-is, without any warranty.
 
-package App::apass::GenPass;
+package App::apass::Utils::GenPass;
 use Crypt::GeneratePassword qw/word chars/;
 require Exporter;
 our @ISA = qw/Exporter/;
@@ -19,7 +19,7 @@ sub genpass {
 	};
 	my $pass;
 
-	return word($opts->{length}, $opts->{length}) if $opts->{nospec};
+	return word($opts->{length}, $opts->{length}) if $opts->{'no-special'};
 	return chars($opts->{length}, $opts->{length});
 }
 

@@ -2,8 +2,8 @@
 use warnings;
 use strict;
 use Test::More tests => 3;
-use App::apass::Database;
-use App::apass::Crypt;
+use App::apass::Utils::Database;
+use App::apass::Utils::Crypt;
 use Crypt::CBC;
 
 my $crypt = mkcrypt( key => 'password' );

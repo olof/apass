@@ -1,4 +1,4 @@
-package App::apass::Database;
+package App::apass::Utils::Database;
 
 use warnings; 
 use strict;
@@ -8,7 +8,7 @@ our @ISA = qw/Exporter/;
 our @EXPORT = qw/
 	db_load db_dump db_init
 /;
-our $VERSION = 0.1;
+our $VERSION = 0.2;
 
 sub db_load {
 	my $opts = { 
