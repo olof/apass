@@ -9,7 +9,7 @@
 our $APP = 'apass';
 our $VERSION = 0.2;
 
-use warnings;
+use warnings FATAL => 'all';
 use strict;
 use feature qw/say/;
 
