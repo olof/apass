@@ -8,7 +8,6 @@ lib/App/apass/regen.pm
 lib/App/apass/rm.pm
 lib/App/apass/set.pm
 lib/App/apass/Utils/Crypt.pm
-lib/App/apass/Utils/Database.pm
 lib/App/apass/Utils/DB.pm
 lib/App/apass/Utils/GenPass.pm
 lib/App/apass/Utils/Help.pm
