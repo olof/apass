@@ -9,6 +9,14 @@ our $VERSION = 0.1;
 
 use Term::ReadPassword;
 
+=head1 SUBROUTINES
+
+=head2 pass_read
+
+Read a password from the terminal, without echoing etc.
+
+=cut
+
 sub pass_read {
 	my $msg = shift // 'Password';
 	return read_password("$msg: ");
@@ -24,6 +32,13 @@ sub _pass_repeat {
 	return {ok => $p1 };
 }
 
+=head2 pass_create
+
+Read a password from the terminal, no echoing. Then read
+one more and make sure they match. Useful for manually
+creating passwords.
+
+=cut
 
 sub pass_create {
 	for (0 .. 2) {

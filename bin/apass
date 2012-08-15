@@ -54,11 +54,10 @@ apass - a password generator and manager
 
  apass [options] <cmd> [cmd arguments]
 
+ See apass <cmd> --help for <cmd> specific options.
+
  Options:
-  --output          print password to stdout
-  --length          specify length for new passwords
-  --nospec          don't use special characters in passwords
-  --file            use a database, other than ~/.apass
+  --file            use a database file other than ~/.apass
 
   --debug           print debug output to stdout
   --help            show usage information
@@ -66,9 +65,9 @@ apass - a password generator and manager
 
  Commands:
   get <tag>         get password for tag
-  add <tag>         generate password for tag
+  add <tag>         generate password for new tag
   regen <tag>       generate a new password for tag
-  set <tag> <pass>  manually set password "pass" for tag (new or existing)
+  set <tag>         manually set password for tag (new or existing)
   rm <tag>          remove tag
   init              initialize database
 
@@ -81,19 +80,35 @@ access, and enter your master password.
 
 =head1 COMMANDS
 
+For detailed information on a specific command, do apass <cmd> --help.
+
 =over
 
-=item B<get>
+=item B<get> <tag>
 
-=item B<add>
+Get a password associated with a tag. Takes one argument, the tag you
+want to get password of.
 
-=item B<set>
+=item B<add> <tag>
 
-=item B<regen>
+Adds a tag/password pair to the database. Will generate a random
+password for you.
 
-=item B<rm>
+=item B<set> <tag>
+
+Manually set a password for a tag (either new or already existing).
+
+=item B<regen> <tag>
+
+Generate a new random password for tag.
+
+=item B<rm> <tag>
+
+Remove a tag from the database.
 
 =item B<init>
+
+Initialize database.
 
 =back
 
@@ -101,14 +116,13 @@ access, and enter your master password.
 
 =over
 
-=item B<--output> B<-p>
+=item B<--file> B<-f>
 
-Print password to stdout when accessing with B<get>.
+Use an alternative location for the password database file. Default is
+~/.apass.
 
 =item B<--help> B<-h>
 
 Print short help text (the SYNOPSIS section of this document) to stdout.
 
 =back
-
-etc.

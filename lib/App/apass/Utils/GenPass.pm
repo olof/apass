@@ -12,6 +12,26 @@ our @ISA = qw/Exporter/;
 our @EXPORT = qw/genpass/;
 our $VERSION = 0.1;
 
+=head1 SUBROUTINES
+
+=head2 genpass
+
+Generate a random password. Has two options (passed to it
+as a name value pair):
+
+=over
+
+=item * length (defaults to 16)
+
+Lenght of the password.
+
+=item * no-special
+
+If this is set to a true value, the generated password
+will only consist of a-z.
+
+=cut
+
 sub genpass {
 	my $opts = { 
 		length => 16,
