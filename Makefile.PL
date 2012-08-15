@@ -11,6 +11,7 @@ WriteMakefile(
 		'Crypt::CBC' => 0,
 		'Crypt::GeneratePassword' => 0,
 		'Term::ReadPassword' => 0,
+		'Test::Trap' => 0,
 	},
 );
 
