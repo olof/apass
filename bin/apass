@@ -64,12 +64,13 @@ apass - a password generator and manager
   --version         show version information
 
  Commands:
-  get <tag>         get password for tag
-  add <tag>         generate password for new tag
-  regen <tag>       generate a new password for tag
-  set <tag>         manually set password for tag (new or existing)
-  rm <tag>          remove tag
-  init              initialize database
+  get <tag>          get password for tag
+  add <tag>          generate password for new tag
+  regen <tag>        generate a new password for tag
+  set <tag>          manually set password for tag (new or existing)
+  rename <old> <new> rename tag
+  rm <tag>           remove tag
+  init               initialize database
 
 =head1 DESCRIPTION
 
@@ -101,6 +102,10 @@ Manually set a password for a tag (either new or already existing).
 =item B<regen> <tag>
 
 Generate a new random password for tag.
+
+=item B<rename> <old tag> <new tag>
+
+Rename a tag, keeping the same password information.
 
 =item B<rm> <tag>
 
