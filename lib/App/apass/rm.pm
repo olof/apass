@@ -24,7 +24,7 @@ sub invoke {
 	GetOptionsFromArray(\@_, $opts,
 		'version',
 		'help',
-	);
+	) or exit 1;
 	my $tag = shift or error('No tag supplied');
 
 	my $db = App::apass::Utils::DB->new(%$gopts) or

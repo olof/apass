@@ -32,7 +32,7 @@ GetOptions($opts,
 	'cipher=s',
 	'help',
 	'version',
-);
+) or exit 1;
 
 my $cmd = shift or help(\*DATA);
 exit run($cmd, $opts, @ARGV);

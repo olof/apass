@@ -24,7 +24,7 @@ sub invoke {
 	GetOptionsFromArray(\@_, $opts,
 		'version',
 		'help',
-	);
+	) or exit 1;
 
 	init($gopts);
 }

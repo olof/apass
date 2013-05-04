@@ -25,7 +25,7 @@ sub invoke {
 	GetOptionsFromArray(\@_, $opts,
 		'version',
 		'help',
-	);
+	) or exit 1;
 	my $re = shift // '.*';
 
 	my $db = App::apass::Utils::DB->new(%$gopts) or

@@ -20,7 +20,7 @@ sub invoke {
 	GetOptionsFromArray(\@_, $opts,
 		'version',
 		'help',
-	);
+	) or exit 1;
 	my $old_tag = shift or error('No tags supplied');
 	my $new_tag = shift or error('No destination tag supplied');
 

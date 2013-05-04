@@ -25,7 +25,7 @@ sub invoke {
 		'select-ttl=i',
 		'version',
 		'help',
-	);
+	) or exit 1;
 	my $tag = shift or error('No tag supplied');
 
 	my $db = App::apass::Utils::DB->new(%$gopts) or
